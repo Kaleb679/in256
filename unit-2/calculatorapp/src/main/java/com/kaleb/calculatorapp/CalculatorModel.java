@@ -2,8 +2,9 @@ package com.kaleb.calculatorapp;
 
 public class CalculatorModel 
 {
+    public String currentInput = "0"; // aka the display
+    
     private double accumulator = 0.0;
-    private String currentInput = "0";
     private char operator = '\0';
     private boolean startNewNumber = true;
 
@@ -47,16 +48,56 @@ public class CalculatorModel
     }
 
     public void setOperator(char d){
-        
+            double currentValue = Double.parseDouble(currentInput);
+            if (operator != '\0' && !startNewNumber) {
+                compute(currentValue);
+            } else {
+                accumulator = currentValue;
+            }
+            operator = d;
+            startNewNumber = true;
+
     }
+
     public void compute(double rhs){
-
+        switch (operator) {
+            case '+':
+                accumulator += rhs;
+                break;
+            case '-':
+                accumulator -= rhs;
+                break;
+            case '*':
+                accumulator *= rhs;
+                break;
+            case '/':
+                if (rhs == 0){
+                    currentInput = "Error";
+                    operator = '\0';
+                    startNewNumber = true;
+                    return;
+                }
+                accumulator /= rhs;
+                break;
+            default:
+                accumulator = rhs;
+                break;
+        }
+        currentInput = String.valueOf(accumulator);
+        startNewNumber = true;
+        operator = '\0';
     }
+
     public void clear(){
+        accumulator = 0.0;
+        currentInput = "0";
+        operator = '\0';
+        startNewNumber = true;
 
     }
+
     public double getResult(){
-        return 0.0; 
+        return Double.parseDouble(currentInput); 
     }
 
     public static void main(String[] args) {

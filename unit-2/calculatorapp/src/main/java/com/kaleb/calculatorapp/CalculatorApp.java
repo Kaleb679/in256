@@ -1,4 +1,7 @@
 package com.kaleb.calculatorapp;
+// package com.kaleb.calculatorapp.TestModel;
+
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -15,6 +18,9 @@ public class CalculatorApp extends JFrame
 
     public static void main( String[] args )
     {
-        System.out.println( "Hello World!" );
+        System.out.println( "Running Test!" );
+        TestModel.main(args);
+
+
     }
 }
