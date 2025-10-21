@@ -1,0 +1,12 @@
+{
+    "java.format.settings.url": ".vscode/java-formatter.xml",
+    "java.configuration.runtimes": [
+    {
+      "name": "JavaSE-25",
+      "path": "/opt/homebrew/Cellar/openjdk/25/libexec/openjdk.jdk/Contents/Home",
+      "default": true
+    }
+  ],
+  "java.compile.nullAnalysis.mode": "automatic",
+  "java.configuration.updateBuildConfiguration": "automatic"
+}
