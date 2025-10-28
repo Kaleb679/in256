@@ -1,65 +1,63 @@
 package com.kaleb.calculatorapp;
 
-public class CalculatorModel 
-{
-    public String currentInput = "0"; // aka the display
-    
-    private double accumulator = 0.0;
-    private char operator = '\0';
+public class CalculatorModel {
+    private String currentInput = "0"; // displayed number
+    private double accumulator = 0.0; // Left hand value for operations
+    private char operator = '\0'; // current operator +, -, * /
     private boolean startNewNumber = true;
 
+    //INput handler
+    public void inputDigit(char d) {
+        if (d == 'C') {
+            clear();
+            return;
+        }
 
+        // Toggle negative sign
+        if (d == '-') {
+            if (currentInput.startsWith("-")) {
+                currentInput = currentInput.substring(1);
+            } else {
+                currentInput = "-" + currentInput;
+            }
+            return;
+        }
 
-    
-    public void inputDigit(char d){
-        switch (d) {
-            
-            case '-':
-                // if number is negative, make positive
-                // one possible issue hereis a negative 0? 
-                // keep in mind for other operations
-                if (currentInput.charAt(0) == '-'){
-                    currentInput = currentInput.substring(1); //get substring after '-'
-                } else {
-                    currentInput = "-" + currentInput;
-                }
-                break;
+        // Handle digits 0–9 // some weirdness with pressing 0 then another number but //fix later
+        if (Character.isDigit(d)) {
+            if (startNewNumber) {
+                currentInput = String.valueOf(d);
+                startNewNumber = false;
+                return;
+            }
 
-            case '0':
-                if (currentInput.equals("0") || currentInput.equals("-0")){
-                    break;
-                }
-                currentInput += "0";                   
-                break;
-            case 'C':
-                clear();
-                break;
-
-            default: //is a digit
-                if (startNewNumber){
-                    startNewNumber = false;
-                    currentInput = String.valueOf(d);
-                } else {
-                    currentInput += d;
-                }
-                break;
-
+            // Replace a single leading 0 or -0
+            if (currentInput.equals("0")) {
+                currentInput = String.valueOf(d);
+            } else if (currentInput.equals("-0")) {
+                currentInput = "-" + d;
+            } else {
+                currentInput += d;
+            }
         }
     }
 
-    public void setOperator(char d){
-            double currentValue = Double.parseDouble(currentInput);
-            if (operator != '\0' && !startNewNumber) {
-                compute(currentValue);
-            } else {
-                accumulator = currentValue;
-            }
-            operator = d;
-            startNewNumber = true;
+    //Operator handle
+    public void setOperator(char op) {
+        double currentValue = safeParse(currentInput);
 
+        if (operator != '\0' && !startNewNumber) {
+            compute(currentValue);
+        } else {
+            accumulator = currentValue;
+        }
+
+        operator = op;
+        startNewNumber = true;
     }
 
-    public void compute(double rhs){
+    // core (take left hand and (rhs) Right hand side and perform operation via set operation in state)
+    public void compute(double rhs) {
         switch (operator) {
             case '+':
                 accumulator += rhs;
@@ -71,40 +69,60 @@ public class CalculatorModel
                 accumulator *= rhs;
                 break;
             case '/':
-                if (rhs == 0){
+                if (rhs == 0) {
                     currentInput = "Error";
-                    operator = '\0';
-                    startNewNumber = true;
+                    resetAfterError();
                     return;
                 }
                 accumulator /= rhs;
                 break;
             default:
+                // no operator yet, treat as assignment
                 accumulator = rhs;
                 break;
         }
-        currentInput = String.valueOf(accumulator);
-        startNewNumber = true;
+
+        currentInput = stripTrailingZeros(accumulator);
         operator = '\0';
+        startNewNumber = true;
     }
 
-    public void clear(){
+    // ===== Reset Logic =====
+    public void clear() {
         accumulator = 0.0;
         currentInput = "0";
         operator = '\0';
         startNewNumber = true;
-
     }
 
-    public double getResult(){
-        return Double.parseDouble(currentInput); 
+    private void resetAfterError() {
+        accumulator = 0.0;
+        operator = '\0';
+        startNewNumber = true;
     }
 
-    public static void main(String[] args) {
-        CalculatorModel calculatorModel = new CalculatorModel();
-        
+    // ===== Helpers =====
+    private double safeParse(String text) {
+        try {
+            return Double.parseDouble(text);
+        } catch (NumberFormatException e) {
+            return 0.0;
+        }
     }
-    
 
+    private String stripTrailingZeros(double value) { //odd fix but works to remove left hand zero after we press zero on True == startNewNumber
+        String s = Double.toString(value);
+        if (s.endsWith(".0"))
+            s = s.substring(0, s.length() - 2);
+        return s;
+    }
 
+    // ===== Getters =====
+    public double getResult() {
+        return safeParse(currentInput);
+    }
+
+    public String getDisplay() {
+        return (currentInput == null || currentInput.isEmpty()) ? "0" : currentInput;
+    }
 }

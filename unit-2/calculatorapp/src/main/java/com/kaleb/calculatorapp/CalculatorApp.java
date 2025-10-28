@@ -3,8 +3,6 @@ package com.kaleb.calculatorapp;
 import javax.swing.*;
 import java.awt.event.*;
 
-// package com.kaleb.calculatorapp.TestModel;
-
 public class CalculatorApp {
     
     private CalculatorModel model;
@@ -15,37 +13,52 @@ public class CalculatorApp {
         view = new CalculatorView();
         initController();
     }
-    
-    private void handleInput(String input){
+
+    // Handle what happens when any button is pressed
+    private void handleInput(String input) {
         char c = input.charAt(0);
+
         if (Character.isDigit(c)) {
             model.inputDigit(c);
-        }
-        else if ("+-*/".indexOf(c) >= 0){
+        } 
+        else if ("+-*/".indexOf(c) >= 0) {
             model.setOperator(c);
-        }
-        else if (c == '='){
-            model.compute(Double.parseDouble(model.currentInput));
-        }
+        } 
+        else if (c == '=') {
+            model.compute(Double.parseDouble(model.getDisplay()));
+        } 
         else if (c == 'C') {
             model.clear();
         }
+
+        // Always update the display after handling input
+        view.setDisplayText(model.getDisplay());
     }
 
+    // Connects the buttons to the logic
     private void initController() {
         view.addButtonListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String input = e.getActionCommand();
-                handleInput(input);
-                view.setDisplayText(model.currentInput);
+                handleInput(e.getActionCommand());
             }
         });
     }
 
-    public static void main(String[] args) {
-        System.out.println("Running Test!");
-        TestModel.main(args);
+    // Build and display the calculator window
+    private void showUI() {
+        JFrame frame = new JFrame("Simple Calculator");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setContentPane(view);
+        frame.pack();
+        frame.setResizable(false);
+        frame.setVisible(true);
+    }
 
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            CalculatorApp app = new CalculatorApp();
+            app.showUI();
+        });
     }
 }
